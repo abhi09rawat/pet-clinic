@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pet-clinic-deploy
+  labels:
+    app: pet-clinic
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pet-clinic
+  template:
+    metadata:
+      labels:
+        app: pet-clinic
+    spec:
+      containers:
+      - name: pet-clinic
+        image: 802878444238.dkr.ecr.eu-west-3.amazonaws.com/spring-pet-clinic:latest
+        imagePullPolicy: IfNotPresent

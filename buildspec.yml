@@ -1,0 +1,29 @@
+version: 0.2        
+phases:
+
+  pre_build:
+    commands:
+      - echo "Entered pre-build phase"
+      - echo "Wait for a while"
+  build:
+    commands:
+      - echo "Entered build phase for the Springboot Application"
+      - ./mvnw spring-boot:build-image
+      - ls -l
+      - env
+      - aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 802878444238.dkr.ecr.eu-west-3.amazonaws.com
+      - docker tag spring-petclinic:2.5.0-SNAPSHOT  802878444238.dkr.ecr.eu-west-3.amazonaws.com/spring-pet-clinic:latest      
+      - docker push 802878444238.dkr.ecr.eu-west-3.amazonaws.com/spring-pet-clinic:latest
+  post_build:
+    commands:
+      - echo "Entered the Post build"
+      - aws eks update-kubeconfig --name mscpEKSCluster-OCT20
+      - kubectl get nodes
+      - kubectl apply -f deploy_to_k8s/petclinic-deploy.yaml -n pet-clinic
+      - kubectl rollout restart -f deploy_to_k8s/petclinic-deploy.yaml -n pet-clinic
+      - kubectl apply -f deploy_to_k8s/petclinic-svc.yaml -n pet-clinic
+
+artifacts:
+  files:
+    - target/*/**
+ 
